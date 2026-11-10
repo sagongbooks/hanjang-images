@@ -23,7 +23,9 @@ jobs:
         env:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry }}
+          NTFY_TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.dry }}
         run: python3 -I scripts/run_queue.py
       - name: 게시 결과 기록 저장
         if: always()
