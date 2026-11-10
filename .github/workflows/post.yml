@@ -23,6 +23,8 @@ jobs:
         env:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          JECHEOL_INSTAGRAM_ACCESS_TOKEN: ${{ secrets.JECHEOL_INSTAGRAM_ACCESS_TOKEN }}
+          JECHEOL_THREADS_ACCESS_TOKEN: ${{ secrets.JECHEOL_THREADS_ACCESS_TOKEN }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry }}
           NTFY_TEST: ${{ github.event_name == 'workflow_dispatch' && inputs.dry }}
