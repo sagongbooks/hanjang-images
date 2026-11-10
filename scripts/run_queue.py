@@ -14,6 +14,17 @@ LATE = datetime.timedelta(hours=6)
 now = datetime.datetime.now(datetime.timezone.utc)
 fail = 0
 
+if DRY:  # 미리보기 실행 때 열쇠(토큰)가 살아 있는지만 확인 (값은 출력하지 않음)
+    import urllib.request
+    for name, url in (("INSTAGRAM_ACCESS_TOKEN", "https://graph.facebook.com/v25.0/17841456827059483?fields=username"),
+                      ("THREADS_ACCESS_TOKEN", "https://graph.threads.net/v1.0/me?fields=username")):
+        tok = os.environ.get(name, "")
+        try:
+            with urllib.request.urlopen(url + "&access_token=" + tok, timeout=30) as r:
+                print(f"열쇠 확인 {name}: OK ({json.load(r).get('username')})")
+        except Exception as e:
+            print(f"열쇠 확인 {name}: 실패 ({type(e).__name__})"); fail += 1
+
 for sp in sorted(glob.glob(os.path.join(ROOT, "jobs", "*", "schedule.json"))):
     d = os.path.dirname(sp); job = os.path.basename(d)
     sch = json.load(open(sp, encoding="utf-8"))
