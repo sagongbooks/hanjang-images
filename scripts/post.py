@@ -20,7 +20,12 @@
 import argparse, json, os, sys, time, urllib.parse, urllib.request, urllib.error
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-IG_ID = "17841456827059483"
+# 채널별 계정 (post.json의 "channel" 값, 없으면 hanjang)
+CHANNELS = {
+    "hanjang": {"name": "리뷰한장", "ig_id": "17841456827059483", "ig_tok": "INSTAGRAM_ACCESS_TOKEN", "th_tok": "THREADS_ACCESS_TOKEN"},
+    "jecheol": {"name": "제철템상점", "ig_id": "17841418119618352", "ig_tok": "JECHEOL_INSTAGRAM_ACCESS_TOKEN", "th_tok": "JECHEOL_THREADS_ACCESS_TOKEN"},
+}
+TOKEN_NAMES = [v for c in CHANNELS.values() for v in (c["ig_tok"], c["th_tok"])]
 IG_API = "https://graph.facebook.com/v25.0"
 TH_API = "https://graph.threads.net/v1.0"
 DISCLOSURE_WORDS = ("쿠팡 파트너스", "수수료")
@@ -30,7 +35,7 @@ def load_env():
     env = {}
     path = os.path.join(ROOT, ".env")
     if not os.path.exists(path):  # GitHub 자동 실행: 비밀 보관함(Secrets)이 환경 변수로 들어온다
-        return {k: os.environ[k] for k in ("INSTAGRAM_ACCESS_TOKEN", "THREADS_ACCESS_TOKEN") if os.environ.get(k)}
+        return {k: os.environ[k] for k in TOKEN_NAMES if os.environ.get(k)}
     with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -93,6 +98,10 @@ def main():
 
     folder = os.path.abspath(a.folder)
     post = json.load(open(os.path.join(folder, "post.json"), encoding="utf-8"))
+    chan = post.get("channel", "hanjang")
+    if chan not in CHANNELS: raise SystemExit(f"모르는 채널이에요: {chan}")
+    C = CHANNELS[chan]; IG_ID = C["ig_id"]
+    print(f"  채널: {C['name']} ({chan})")
     done_path = os.path.join(folder, "posted.json")
     done = json.load(open(done_path)) if os.path.exists(done_path) else {}
     base = a.base_url.rstrip("/")
@@ -136,7 +145,7 @@ def main():
 
     # 3) 인스타그램 (캐러셀 또는 릴스)
     if "instagram" in channels and "instagram" not in done:
-        tok = env["INSTAGRAM_ACCESS_TOKEN"]
+        tok = env[C["ig_tok"]]
         if ig.get("video"):  # 릴스
             prm = {"media_type": "REELS", "video_url": q(ig["video"]), "caption": ig["caption"], "share_to_feed": "true"}
             if ig.get("thumb_offset"): prm["thumb_offset"] = str(ig["thumb_offset"])
@@ -159,7 +168,7 @@ def main():
 
     # 4) 스레드
     if "threads" in channels and "threads" not in done:
-        tok = env["THREADS_ACCESS_TOKEN"]
+        tok = env[C["th_tok"]]
         p = {"text": th["text"]}
         if th.get("topic"): p["topic_tag"] = th["topic"]  # 주제 태그 1개 (노출 경로)
         if len(th_imgs) >= 2:  # 여러 장이면 캐러셀
