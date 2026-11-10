@@ -30,6 +30,7 @@ jobs:
         run: |
           git config user.name "hanjang-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -d jobs ] || exit 0
           git add -A jobs
           if git diff --cached --quiet; then exit 0; fi
           git commit -q -m "게시 결과 기록"
