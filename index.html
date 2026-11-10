@@ -5,104 +5,104 @@
 <meta name="description" content="리뷰 천 개를 카드 한 장으로. 리뷰한장이 정리한 상품의 구매 링크 모음">
 <meta name="robots" content="noindex">
 <style>
-:root{--sand:#F0DDC3;--paper:#FBF7F2;--coral:#DE8765;--peach:#E99C75;--butter:#E4C198;--rose:#B4483C;--choco:#3A2621;--milk:#7A5A4E;--line:#EADBC8}
+:root{--sand:#F0DDC3;--paper:#FBF7F2;--coral:#DE8765;--peach:#E99C75;--butter:#E4C198;--rose:#B4483C;--choco:#3A2621;--milk:#7A5A4E}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--sand);color:var(--choco);font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-font-smoothing:antialiased}
-.wrap{max-width:480px;margin:0 auto;padding:16px 16px 48px}
-header{text-align:center;padding:18px 0 14px}
-.logo{font-size:28px;font-weight:800;letter-spacing:-1px}
-.logo b{color:var(--rose)}
-.sub{font-size:13.5px;color:var(--milk);margin-top:4px}
-.disc{background:var(--paper);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;line-height:1.5;text-align:center}
-.search{position:sticky;top:0;z-index:2;background:var(--sand);padding:12px 0 8px}
-.search input{width:100%;border:0;border-radius:14px;background:var(--paper);padding:13px 14px 13px 40px;font-size:15px;color:var(--choco);font-family:inherit;outline:2px solid transparent}
+body{background:var(--paper);color:var(--choco);font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px 48px}
+.hero{position:relative;overflow:hidden;border-radius:28px;background:linear-gradient(150deg,var(--coral),var(--peach) 60%,var(--butter));padding:30px 24px 26px;color:var(--paper);min-height:200px}
+.hero .logo{font-size:40px;font-weight:900;letter-spacing:-2px;line-height:1}
+.hero .logo b{color:var(--choco)}
+.hero .sub{font-size:15px;font-weight:700;margin-top:10px;line-height:1.45;max-width:58%}
+.hero .cnt{display:inline-block;margin-top:14px;background:var(--choco);color:var(--paper);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:800}
+.hero img{position:absolute;width:92px;height:92px;border-radius:16px;background:#fff;object-fit:cover;border:4px solid #fff;box-shadow:0 10px 20px rgba(58,38,33,.18)}
+.hero .h0{right:22px;top:24px;transform:rotate(6deg)}
+.hero .h1{right:84px;top:92px;transform:rotate(-8deg)}
+.hero .h2{right:14px;top:118px;transform:rotate(3deg)}
+.disc{font-size:12px;color:var(--milk);text-align:center;margin:10px 0 2px}
+.search{position:sticky;top:0;z-index:3;background:var(--paper);padding:10px 0 6px}
+.search .box{position:relative}
+.search input{width:100%;border:0;border-radius:14px;background:#F3E9DC;padding:13px 14px 13px 40px;font-size:15px;color:var(--choco);font-family:inherit;outline:2px solid transparent}
 .search input:focus{outline-color:var(--coral)}
-.search svg{position:absolute;left:14px;top:25px;width:17px;height:17px;stroke:var(--milk)}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:6px 0 2px;scrollbar-width:none}
-.chip{flex:none;border:0;border-radius:999px;background:var(--paper);color:var(--milk);font:700 13px inherit;font-family:inherit;padding:7px 13px;cursor:pointer}
+.search svg{position:absolute;left:14px;top:14px;width:17px;height:17px;stroke:var(--milk)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}
+.chip{flex:none;border:0;border-radius:999px;background:#F3E9DC;color:var(--milk);font-weight:800;font-size:13px;font-family:inherit;padding:7px 14px;cursor:pointer}
 .chip.on{background:var(--choco);color:var(--paper)}
-.count{font-size:12.5px;color:var(--milk);margin:12px 4px 8px}
-.row{display:flex;gap:12px;align-items:center;background:var(--paper);border-radius:16px;padding:10px 12px 10px 10px;margin-bottom:8px;text-decoration:none;color:inherit}
-.row[hidden]{display:none}
-.row:target{outline:3px solid var(--coral)}
-.row img{flex:none;width:72px;height:72px;border-radius:12px;object-fit:cover;background:#fff}
-.tx{flex:1;min-width:0}
-.hook{font-size:15px;font-weight:800;line-height:1.35}
-.nm{font-size:12.5px;color:var(--milk);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mt{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:12px;flex-wrap:wrap}
-.no{background:var(--choco);color:var(--paper);border-radius:6px;padding:1px 6px;font-weight:800;font-size:11px}
-.tg{background:var(--butter);border-radius:6px;padding:1px 6px;font-weight:700;font-size:11px}
-.pr{color:var(--rose);font-weight:800}
-.pr small{color:var(--milk);font-weight:500;font-size:11px}
-.go{flex:none;font-size:24px;color:var(--peach);font-weight:700}
-.more{display:block;width:100%;border:0;border-radius:14px;background:var(--paper);color:var(--choco);font:800 14px inherit;font-family:inherit;padding:13px;margin-top:6px;cursor:pointer}
-.more[hidden],.empty[hidden]{display:none}
+.grp{margin-top:22px}
+.grp[hidden]{display:none}
+.grp h2{font-size:18px;font-weight:900;letter-spacing:-.5px;margin:0 2px 10px}
+.grp h2 small{font-size:13px;color:var(--coral);margin-left:2px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 12px}
+@media(min-width:520px){.grid{grid-template-columns:repeat(3,1fr)}}
+.tile{display:block;text-decoration:none;color:inherit;min-width:0;border-radius:20px;padding:0 0 4px}
+.tile[hidden]{display:none}
+.tile:target .ph{outline:3px solid var(--coral);outline-offset:2px}
+.ph{position:relative;aspect-ratio:1/1;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 6px 16px rgba(58,38,33,.08)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.tile:active .ph img{transform:scale(.97)}
+.no{position:absolute;left:8px;top:8px;background:rgba(58,38,33,.82);color:var(--paper);border-radius:8px;padding:2px 7px;font-size:10.5px;font-weight:800}
+.br{font-size:12px;color:var(--milk);font-weight:700;margin:9px 2px 1px}
+.nm{font-size:14.5px;font-weight:800;line-height:1.3;margin:0 2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hk{font-size:12px;color:var(--rose);font-weight:700;line-height:1.35;margin:4px 2px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .empty{text-align:center;color:var(--milk);font-size:14px;padding:30px 0}
-footer{font-size:12px;color:var(--milk);line-height:1.6;text-align:center;margin-top:22px}
-footer a{color:var(--milk)}
+.empty[hidden]{display:none}
+footer{font-size:11.5px;color:var(--milk);line-height:1.65;text-align:center;margin-top:34px;padding-top:18px;border-top:1px solid #EADBC8}
+footer a{color:var(--milk);font-weight:700}
 </style></head>
 <body><div class="wrap">
-  <div class="disc">이 페이지는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</div>
-  <header>
+  <div class="hero">
     <div class="logo"><b>리뷰</b>한장</div>
-    <div class="sub">리뷰 천 개를 카드 한 장으로 · 구매 링크 모음</div>
-  </header>
-  <div class="search" style="position:sticky">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-    <input id="q" type="search" placeholder="상품명·브랜드·번호(RH-001)로 찾기" autocomplete="off">
-    <div class="chips"><button class="chip on" data-c="">전체</button><button class="chip" data-c="스킨케어">스킨케어</button></div>
+    <div class="sub">리뷰 천 개를<br>카드 한 장으로</div>
+    <span class="cnt">구매 링크 2개</span>
+    <img src="thumbs/RH-002.jpg" alt="" class="h0"><img src="thumbs/RH-001.jpg" alt="" class="h1">
   </div>
-  <div class="count" id="cnt">전체 2개 · 최신순</div>
-  <div id="list">
-  <a class="row" id="RH-002" href="https://link.coupang.com/a/iyOzBRuAcS" target="_blank" rel="sponsored noopener"
-     data-cat="스킨케어" data-s="rh-002 토리든 다이브인 저분자 히알루론산 세럼 50ml 리뷰 9,871개가 말한 가벼운 수분 세럼 세럼 스킨케어 토리든 다이브인 히알루론산 수분세럼 세럼">
-    <img src="thumbs/RH-002.jpg" alt="" loading="lazy" width="72" height="72">
-    <div class="tx">
-      <div class="hook">리뷰 9,871개가 말한 가벼운 수분 세럼</div>
-      <div class="nm">토리든 다이브인 저분자 히알루론산 세럼 50ml</div>
-      <div class="mt"><span class="no">RH-002</span><span class="tg">세럼</span><span class="pr">15,600원 <small>11/10 기준</small></span></div>
-    </div>
-    <span class="go" aria-hidden="true">›</span>
-  </a>
-  <a class="row" id="RH-001" href="https://link.coupang.com/a/iyJ326SuGW" target="_blank" rel="sponsored noopener"
-     data-cat="스킨케어" data-s="rh-001 에스트라 아토베리어365 크림 플러스 90ml 리뷰 2.7만 개가 고른 겨울 보습크림 크림 스킨케어 에스트라 아토베리어 보습크림 크림">
-    <img src="thumbs/RH-001.jpg" alt="" loading="lazy" width="72" height="72">
-    <div class="tx">
-      <div class="hook">리뷰 2.7만 개가 고른 겨울 보습크림</div>
-      <div class="nm">에스트라 아토베리어365 크림 플러스 90ml</div>
-      <div class="mt"><span class="no">RH-001</span><span class="tg">크림</span><span class="pr">29,450원 <small>11/10 기준</small></span></div>
-    </div>
-    <span class="go" aria-hidden="true">›</span>
-  </a></div>
+  <div class="disc">쿠팡 파트너스 활동으로 수수료를 받아요.</div>
+  <div class="search">
+    <div class="box"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="상품명·브랜드·번호(RH-001)로 찾기" autocomplete="off"></div>
+    <div class="chips"><button class="chip on" data-c="">전체</button><button class="chip" data-c="세럼">세럼</button><button class="chip" data-c="크림">크림</button></div>
+  </div>
+  <div id="list"><section class="grp"><h2>전체 상품 <small>2</small></h2><div class="grid">
+    <a class="tile" id="RH-002" href="https://link.coupang.com/a/iyOzBRuAcS" target="_blank" rel="sponsored noopener" data-s="rh-002 토리든 다이브인 저분자 히알루론산 세럼 50ml 리뷰 9,871개가 말한 가벼운 수분 세럼 세럼 스킨케어 토리든 다이브인 히알루론산 수분세럼 세럼" data-t="세럼">
+      <div class="ph"><img src="thumbs/RH-002.jpg" alt="토리든 다이브인 저분자 히알루론산 세럼 50ml" loading="lazy" width="480" height="480"><span class="no">RH-002</span></div>
+      <div class="br">토리든</div>
+      <div class="nm">다이브인 저분자 히알루론산 세럼 50ml</div>
+      <div class="hk">리뷰 9,871개가 말한 가벼운 수분 세럼</div>
+    </a>
+    <a class="tile" id="RH-001" href="https://link.coupang.com/a/iyJ326SuGW" target="_blank" rel="sponsored noopener" data-s="rh-001 에스트라 아토베리어365 크림 플러스 90ml 리뷰 2.7만 개가 고른 겨울 보습크림 크림 스킨케어 에스트라 아토베리어 보습크림 크림" data-t="크림">
+      <div class="ph"><img src="thumbs/RH-001.jpg" alt="에스트라 아토베리어365 크림 플러스 90ml" loading="lazy" width="480" height="480"><span class="no">RH-001</span></div>
+      <div class="br">에스트라</div>
+      <div class="nm">아토베리어365 크림 플러스 90ml</div>
+      <div class="hk">리뷰 2.7만 개가 고른 겨울 보습크림</div>
+    </a></div></section></div>
   <div class="empty" id="empty" hidden>찾는 상품이 없어요. 다른 이름이나 번호로 찾아보세요.</div>
-  <button class="more" id="more" hidden>더 보기</button>
-  <footer>체험 후기가 아니라 공개 리뷰의 경향과 판매 페이지 정보를 정리했어요.<br>가격·리뷰 수는 표시된 날짜 기준이며 바뀔 수 있어요.<br>피부 반응은 사람마다 달라요. 구매 전 전성분을 확인해 주세요.<br><br><a href="https://www.instagram.com/review.hanjang/">인스타그램</a> · <a href="https://www.threads.com/@review.hanjang">스레드</a></footer>
+  <footer>이 페이지는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.<br>
+  체험 후기가 아니라 공개 리뷰의 경향과 판매 페이지 정보를 정리했어요.<br>가격·리뷰 수는 바뀔 수 있어요. 피부 반응은 사람마다 달라요.<br><br>
+  <a href="https://www.instagram.com/review.hanjang/">인스타그램</a> · <a href="https://www.threads.com/@review.hanjang">스레드</a></footer>
 </div>
 <script>
 (function(){
-  var rows=[].slice.call(document.querySelectorAll('.row')), q=document.getElementById('q'),
-      more=document.getElementById('more'), cnt=document.getElementById('cnt'), empty=document.getElementById('empty'),
-      chips=[].slice.call(document.querySelectorAll('.chip')), cat='', limit=30;
+  var q=document.getElementById('q'), empty=document.getElementById('empty'),
+      grps=[].slice.call(document.querySelectorAll('.grp')), chips=[].slice.call(document.querySelectorAll('.chip')), cat='';
   function norm(s){return s.toLowerCase().replace(/\s+/g,'')}
   function draw(){
-    var t=norm(q.value), shown=0, match=0;
-    rows.forEach(function(r){
-      var ok=(!cat||r.dataset.cat===cat)&&(!t||norm(r.dataset.s).indexOf(t)>-1);
-      if(ok) match++;
-      var vis=ok&&(t||cat?true:shown<limit);
-      r.hidden=!vis; if(vis) shown++;
+    var t=norm(q.value), total=0;
+    grps.forEach(function(g){
+      if(g.dataset.new){g.hidden=!!(t||cat);return;}
+      var n=0;
+      [].forEach.call(g.querySelectorAll('.tile'),function(el){
+        var ok=(!cat||el.dataset.t===cat)&&(!t||norm(el.dataset.s).indexOf(t)>-1);
+        el.hidden=!ok; if(ok) n++;
+      });
+      g.hidden=n===0; total+=n;
     });
-    more.hidden=!!(t||cat)||match<=limit;
-    empty.hidden=match>0;
-    cnt.textContent=(t||cat?'찾은 상품 '+match+'개':'전체 '+rows.length+'개 · 최신순');
+    empty.hidden=total>0;
   }
   q.addEventListener('input',draw);
   chips.forEach(function(c){c.addEventListener('click',function(){
     chips.forEach(function(x){x.classList.remove('on')}); c.classList.add('on'); cat=c.dataset.c; draw();
   })});
-  more.addEventListener('click',function(){limit+=30; draw();});
   var h=decodeURIComponent(location.hash.slice(1));
-  if(h){var el=document.getElementById(h); if(el){el.hidden=false; el.scrollIntoView({block:'center'});}}
+  if(h){var el=document.getElementById(h); if(el) el.scrollIntoView({block:'center'});}
 })();
 </script>
 </body></html>
