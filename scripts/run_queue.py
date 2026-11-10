@@ -32,7 +32,9 @@ def notify(title, msg, click=None, tags="white_check_mark", prio=3):
 if DRY:  # 미리보기 실행 때 열쇠(토큰)가 살아 있는지만 확인 (값은 출력하지 않음)
     import urllib.request
     for name, url in (("INSTAGRAM_ACCESS_TOKEN", "https://graph.facebook.com/v25.0/17841456827059483?fields=username"),
-                      ("THREADS_ACCESS_TOKEN", "https://graph.threads.net/v1.0/me?fields=username")):
+                      ("THREADS_ACCESS_TOKEN", "https://graph.threads.net/v1.0/me?fields=username"),
+                      ("JECHEOL_INSTAGRAM_ACCESS_TOKEN", "https://graph.facebook.com/v25.0/17841418119618352?fields=username"),
+                      ("JECHEOL_THREADS_ACCESS_TOKEN", "https://graph.threads.net/v1.0/me?fields=username")):
         tok = os.environ.get(name, "")
         try:
             with urllib.request.urlopen(url + "&access_token=" + tok, timeout=30) as r:
