@@ -1,0 +1,37 @@
+name: 예약 게시
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "미리보기만 (실제로 올리지 않음)"
+        type: boolean
+        default: true
+permissions:
+  contents: write
+concurrency:
+  group: post-queue
+  cancel-in-progress: false
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: 시간이 된 글 게시
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry }}
+        run: python3 -I scripts/run_queue.py
+      - name: 게시 결과 기록 저장
+        if: always()
+        run: |
+          git config user.name "hanjang-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A jobs
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -q -m "게시 결과 기록"
+          for i in 1 2 3 4 5; do git pull -q --rebase && git push -q && exit 0; sleep 5; done
+          exit 1
