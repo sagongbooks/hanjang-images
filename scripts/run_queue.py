@@ -13,6 +13,21 @@ DRY = os.environ.get("DRY") == "true"
 LATE = datetime.timedelta(hours=6)
 now = datetime.datetime.now(datetime.timezone.utc)
 fail = 0
+TOPIC = os.environ.get("NTFY_TOPIC", "")
+NAMES = {"instagram": "인스타", "threads": "스레드"}
+
+
+def notify(title, msg, click=None, tags="white_check_mark", prio=3):
+    """휴대폰 알림 (ntfy 앱). 공개 게시물 링크만 담는다."""
+    if not TOPIC: return
+    import urllib.request
+    body = {"topic": TOPIC, "title": title, "message": msg, "tags": [tags], "priority": prio}
+    if click: body["click"] = click
+    try:
+        urllib.request.urlopen(urllib.request.Request("https://ntfy.sh/", data=json.dumps(body).encode(),
+                               headers={"Content-Type": "application/json"}), timeout=20)
+    except Exception as e:
+        print("알림 보내기 실패:", type(e).__name__)
 
 if DRY:  # 미리보기 실행 때 열쇠(토큰)가 살아 있는지만 확인 (값은 출력하지 않음)
     import urllib.request
@@ -37,15 +52,23 @@ for sp in sorted(glob.glob(os.path.join(ROOT, "jobs", "*", "schedule.json"))):
         if t > now and not DRY: continue
         if now - t > LATE and not DRY:
             p[f"{ch}_missed"] = at; json.dump(p, open(pp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-            print(f"[{job}] {ch} 예약 시간 {at}에서 6시간 넘게 지나 건너뜀"); fail += 1; continue
+            print(f"[{job}] {ch} 예약 시간 {at}에서 6시간 넘게 지나 건너뜀"); fail += 1
+            notify(f"⚠️ {NAMES.get(ch, ch)} 놓침 ({job})", "예약 시간에서 6시간 넘게 지나 올리지 않았어요.", tags="warning", prio=4); continue
         print(f"\n=== [{job}] {ch} ({at}) {'미리보기' if DRY else '게시'}")
         cmd = [sys.executable, "-I", os.path.join(ROOT, "scripts", "post.py"), d,
                "--base-url", f"{BASE}/jobs/{job}", "--only", ch] + ([] if DRY else ["--publish"])
-        if subprocess.run(cmd).returncode != 0: fail += 1
+        ok = subprocess.run(cmd).returncode == 0
+        if not ok: fail += 1
+        if not DRY:
+            link = posted().get(ch)
+            if ok and link: notify(f"{NAMES.get(ch, ch)} 게시 완료 ({job})", f"올라갔어요: {link}", click=link)
+            else: notify(f"❌ {NAMES.get(ch, ch)} 게시 실패 ({job})", "GitHub 실행 기록을 확인해 주세요. 다음 실행 때 다시 시도해요.", tags="x", prio=5)
     p = posted()
     if not DRY and all(ch in p or f"{ch}_missed" in p for ch in sch["times"]):
         for m in sch.get("media", []):
             f = os.path.join(d, m)
             if os.path.exists(f): os.remove(f); print(f"[{job}] 게시 끝, 파일 정리: {m}")
 
+if DRY and os.environ.get("NTFY_TEST") == "true":
+    notify("리뷰한장 알림 시험", "이 알림이 보이면 설정 완료예요. 앞으로 게시가 끝날 때마다 여기로 알려 드려요.", tags="bell")
 sys.exit(1 if fail else 0)   # 실패가 있으면 GitHub가 실패 표시(메일 알림)
