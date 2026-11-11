@@ -119,6 +119,9 @@ def main():
     if th and len(th["text"]) > 500: raise SystemExit("스레드 글이 500자를 넘어요")
     th_imgs = (th.get("images") or ([th["image"]] if th.get("image") else [])) if th else []
     if len(th_imgs) > 20: raise SystemExit("스레드 캐러셀은 20장까지예요")
+    # 2026-11-11 사용자 규칙: 카드 글은 스레드도 인스타와 같은 장수·순서로 올린다 (일부만 올리면 "덜 올라갔다"로 보임)
+    if ig and th and ig.get("images") and th_imgs and th_imgs != ig["images"]:
+        raise SystemExit(f"스레드 카드({len(th_imgs)}장)가 인스타 카드({len(ig['images'])}장)와 달라요. 같은 카드를 모두 올려야 해요.")
     if th and th.get("topic") and any(c in th["topic"] for c in ".&"):
         raise SystemExit("스레드 주제 태그에는 . 과 & 를 쓸 수 없어요")
     if th: print(f"  스레드 주제 태그: {th.get('topic') or '없음 (노출이 줄 수 있어요)'}")
