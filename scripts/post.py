@@ -14,6 +14,7 @@
 콘텐츠 폴더의 post.json 형식:
   {"instagram": {"images": ["card_1.jpg", ...], "caption": "..."},
    "threads":   {"images": ["card_1.jpg", ...], "text": "...", "topic": "스킨케어"}}
+  일상글(스레드 글만, 링크·홍보 없음): {"channel": "jecheol", "threads": {"kind": "daily", "text": "...", "topic": "살림"}}
   릴스(영상): {"instagram": {"video": "reel.mp4", "caption": "...", "thumb_offset": 2600},
               "threads":   {"video": "reel.mp4", "text": "...", "topic": "스킨케어"}}
 """
@@ -72,6 +73,10 @@ def wait_ready(api, cid, token, field, tries=30):
     raise SystemExit(f"컨테이너 {cid} 준비 시간 초과")
 
 
+def th_media_any(th):
+    return bool(th.get("images") or th.get("image") or th.get("video"))
+
+
 def check_first_line(name, text):
     first = text.strip().splitlines()[0]
     if not all(w in first for w in DISCLOSURE_WORDS):
@@ -112,7 +117,14 @@ def main():
 
     # 1) 검사
     if ig: check_first_line("인스타그램", ig["caption"])
-    if th: check_first_line("스레드", th["text"])
+    # 일상글(kind=daily, 2026-11-11 사용자 결정): 링크·상품 홍보가 없는 스레드 글만 허용, 그때만 수수료 고지 생략
+    if th and th.get("kind") == "daily":
+        if ig or th_media_any(th): raise SystemExit("일상글은 스레드 글(텍스트)만 올려요")
+        low = th["text"].lower()
+        if any(k in low for k in ("http", "link.", "coupang", "쿠팡", "구매", "링크", "할인", "최저가")):
+            raise SystemExit("일상글에 링크·구매 유도 말이 있어요. 홍보 글이면 수수료 고지를 넣은 쇼핑글로 올려야 해요")
+        print("  일상글: 링크·홍보 없음 확인 (수수료 고지 생략)")
+    elif th: check_first_line("스레드", th["text"])
     if ig and not ig.get("video") and not (2 <= len(ig["images"]) <= 10):
         raise SystemExit("인스타 캐러셀은 이미지 2~10장이어야 해요")
     if ig and len(ig["caption"]) > 2200: raise SystemExit("인스타 캡션이 2,200자를 넘어요")
