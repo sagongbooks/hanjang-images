@@ -49,7 +49,9 @@ for sp in sorted(glob.glob(os.path.join(ROOT, "jobs", "*", "schedule.json"))):
     posted = lambda: json.load(open(pp, encoding="utf-8")) if os.path.exists(pp) else {}
     for ch, at in sch["times"].items():
         p = posted()
-        if ch in p or f"{ch}_missed" in p: continue
+        # 2026-11-14: 답글 링크 글은 답글까지 올라가야 끝 (본문만 올라가고 답글이 실패하면 다음 실행 때 답글만 다시)
+        need_reply = ch == "threads" and bool(json.load(open(os.path.join(d, "post.json"), encoding="utf-8")).get("threads", {}).get("reply"))
+        if (ch in p and not (need_reply and "threads_reply" not in p)) or f"{ch}_missed" in p: continue
         t = datetime.datetime.fromisoformat(at)
         if t > now and not DRY: continue
         if now - t > LATE and not DRY:
@@ -66,7 +68,7 @@ for sp in sorted(glob.glob(os.path.join(ROOT, "jobs", "*", "schedule.json"))):
             if ok and link: notify(f"{NAMES.get(ch, ch)} 게시 완료 ({job})", f"올라갔어요: {link}", click=link)
             else: notify(f"❌ {NAMES.get(ch, ch)} 게시 실패 ({job})", "GitHub 실행 기록을 확인해 주세요. 다음 실행 때 다시 시도해요.", tags="x", prio=5)
     p = posted()
-    if not DRY and all(ch in p or f"{ch}_missed" in p for ch in sch["times"]):
+    if not DRY and all(ch in p or f"{ch}_missed" in p for ch in sch["times"]) and not ("threads" in p and "threads_reply" not in p and json.load(open(os.path.join(d, "post.json"), encoding="utf-8")).get("threads", {}).get("reply")):
         for m in sch.get("media", []):
             f = os.path.join(d, m)
             if os.path.exists(f): os.remove(f); print(f"[{job}] 게시 끝, 파일 정리: {m}")
