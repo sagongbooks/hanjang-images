@@ -14,6 +14,7 @@
 콘텐츠 폴더의 post.json 형식:
   {"instagram": {"images": ["card_1.jpg", ...], "caption": "..."},
    "threads":   {"images": ["card_1.jpg", ...], "text": "...", "topic": "스킨케어"}}
+  답글 링크(2026-11-14): "threads": {..., "text": "고지\n본문(링크 없음)", "reply": "고지\n링크"} → 본문 게시 뒤 답글로 링크
   일상글(스레드 글만, 링크·홍보 없음): {"channel": "jecheol", "threads": {"kind": "daily", "text": "...", "topic": "살림"}}
   릴스(영상): {"instagram": {"video": "reel.mp4", "caption": "...", "thumb_offset": 2600},
               "threads":   {"video": "reel.mp4", "text": "...", "topic": "스킨케어"}}
@@ -125,6 +126,13 @@ def main():
             raise SystemExit("일상글에 링크·구매 유도 말이 있어요. 홍보 글이면 수수료 고지를 넣은 쇼핑글로 올려야 해요")
         print("  일상글: 링크·홍보 없음 확인 (수수료 고지 생략)")
     elif th: check_first_line("스레드", th["text"])
+    # 2026-11-14 사용자 결정: 스레드 링크는 본문 대신 답글에 (본문·답글 둘 다 첫 줄 고지)
+    if th and th.get("reply"):
+        check_first_line("스레드 답글", th["reply"])
+        if "http" in th["text"]: raise SystemExit("답글 링크 글인데 본문에도 링크가 있어요. 링크는 답글에만 넣어요")
+        if "http" not in th["reply"]: raise SystemExit("스레드 답글에 링크가 없어요")
+        if len(th["reply"]) > 500: raise SystemExit("스레드 답글이 500자를 넘어요")
+        print("  스레드 답글: 첫 줄 고지 + 링크 확인")
     if ig and not ig.get("video") and not (2 <= len(ig["images"]) <= 10):
         raise SystemExit("인스타 캐러셀은 이미지 2~10장이어야 해요")
     if ig and len(ig["caption"]) > 2200: raise SystemExit("인스타 캡션이 2,200자를 넘어요")
@@ -199,9 +207,19 @@ def main():
         wait_ready(TH_API, r["id"], tok, "status", tries=100)
         pub = call("POST", f"{TH_API}/me/threads_publish", {"creation_id": r["id"]}, tok)
         link = call("GET", f"{TH_API}/{pub['id']}", {"fields": "permalink"}, tok).get("permalink", pub["id"])
-        done["threads"] = link
+        done["threads"] = link; done["threads_id"] = pub["id"]
         json.dump(done, open(done_path, "w"), ensure_ascii=False, indent=1)
         print("스레드 게시 완료:", link)
+
+    # 5) 스레드 답글 (링크) — 본문이 올라간 뒤에만. 열쇠에 threads_manage_replies 권한이 있어야 함
+    if "threads" in channels and th.get("reply") and "threads_reply" not in done and done.get("threads_id"):
+        tok = env[C["th_tok"]]
+        r = call("POST", f"{TH_API}/me/threads", {"media_type": "TEXT", "text": th["reply"], "reply_to_id": done["threads_id"]}, tok)
+        wait_ready(TH_API, r["id"], tok, "status", tries=100)
+        pub = call("POST", f"{TH_API}/me/threads_publish", {"creation_id": r["id"]}, tok)
+        done["threads_reply"] = pub["id"]
+        json.dump(done, open(done_path, "w"), ensure_ascii=False, indent=1)
+        print("스레드 답글(링크) 게시 완료:", pub["id"])
 
 
 if __name__ == "__main__":
