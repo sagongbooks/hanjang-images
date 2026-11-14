@@ -24,7 +24,7 @@ import argparse, json, os, sys, time, urllib.parse, urllib.request, urllib.error
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 채널별 계정 (post.json의 "channel" 값, 없으면 hanjang)
 CHANNELS = {
-    "hanjang": {"name": "리뷰한장", "ig_id": "17841456827059483", "ig_tok": "INSTAGRAM_ACCESS_TOKEN", "th_tok": "THREADS_ACCESS_TOKEN"},
+    "hanjang": {"name": "광장동 아줌마", "ig_id": "17841456827059483", "ig_tok": "INSTAGRAM_ACCESS_TOKEN", "th_tok": "THREADS_ACCESS_TOKEN"},
     "jecheol": {"name": "제철템상점", "ig_id": "17841418119618352", "ig_tok": "JECHEOL_INSTAGRAM_ACCESS_TOKEN", "th_tok": "JECHEOL_THREADS_ACCESS_TOKEN"},
 }
 TOKEN_NAMES = [v for c in CHANNELS.values() for v in (c["ig_tok"], c["th_tok"])]
