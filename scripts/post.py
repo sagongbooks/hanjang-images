@@ -30,7 +30,9 @@ CHANNELS = {
 TOKEN_NAMES = [v for c in CHANNELS.values() for v in (c["ig_tok"], c["th_tok"])]
 IG_API = "https://graph.facebook.com/v25.0"
 TH_API = "https://graph.threads.net/v1.0"
-DISCLOSURE_WORDS = ("쿠팡 파트너스", "수수료")
+# 제휴처별 첫 줄 고지 (post.json "affiliate": "coupang"(기본) | "naver", 2026-11-15 네이버 쇼핑 커넥트 추가)
+DISCLOSURE_BY = {"coupang": ("쿠팡 파트너스", "수수료"), "naver": ("쇼핑 커넥트", "수수료")}
+DISCLOSURE_WORDS = DISCLOSURE_BY["coupang"]
 
 
 def load_env():
@@ -86,9 +88,9 @@ def th_media_any(th):
     return bool(th.get("images") or th.get("image") or th.get("video"))
 
 
-def check_first_line(name, text):
+def check_first_line(name, text, words=None):
     first = text.strip().splitlines()[0]
-    if not all(w in first for w in DISCLOSURE_WORDS):
+    if not all(w in first for w in (words or DISCLOSURE_WORDS)):
         raise SystemExit(f"{name}: 첫 줄에 수수료 고지가 없어요 → '{first}'")
 
 
@@ -125,18 +127,24 @@ def main():
     channels = [c for c in ("instagram", "threads") if post.get(c) and (a.only in (None, c))]
 
     # 1) 검사
-    if ig: check_first_line("인스타그램", ig["caption"])
+    aff = post.get("affiliate", "coupang")
+    if aff not in DISCLOSURE_BY: raise SystemExit(f"affiliate 값이 이상해요: {aff} (coupang 또는 naver)")
+    words = DISCLOSURE_BY[aff]
+    alltext = " ".join(x for x in ((ig or {}).get("caption", ""), (th or {}).get("text", ""), (th or {}).get("reply", "")) if x).lower()
+    if aff == "coupang" and "naver" in alltext: raise SystemExit("네이버 링크가 있는데 affiliate가 쿠팡이에요. post.json에 \"affiliate\": \"naver\"")
+    if aff == "naver" and "coupang" in alltext: raise SystemExit("쿠팡 링크가 있는데 affiliate가 네이버예요")
+    if ig: check_first_line("인스타그램", ig["caption"], words)
     # 일상글(kind=daily, 2026-11-11 사용자 결정): 링크·상품 홍보가 없는 스레드 글만 허용, 그때만 수수료 고지 생략
     if th and th.get("kind") == "daily":
         if ig or th_media_any(th): raise SystemExit("일상글은 스레드 글(텍스트)만 올려요")
         low = th["text"].lower()
-        if any(k in low for k in ("http", "link.", "coupang", "쿠팡", "구매", "링크", "할인", "최저가")):
+        if any(k in low for k in ("http", "link.", "coupang", "쿠팡", "naver.me", "스마트스토어", "구매", "링크", "할인", "최저가")):
             raise SystemExit("일상글에 링크·구매 유도 말이 있어요. 홍보 글이면 수수료 고지를 넣은 쇼핑글로 올려야 해요")
         print("  일상글: 링크·홍보 없음 확인 (수수료 고지 생략)")
-    elif th: check_first_line("스레드", th["text"])
+    elif th: check_first_line("스레드", th["text"], words)
     # 2026-11-14 사용자 결정: 스레드 링크는 본문 대신 답글에 (본문·답글 둘 다 첫 줄 고지)
     if th and th.get("reply"):
-        check_first_line("스레드 답글", th["reply"])
+        check_first_line("스레드 답글", th["reply"], words)
         if "http" in th["text"]: raise SystemExit("답글 링크 글인데 본문에도 링크가 있어요. 링크는 답글에만 넣어요")
         if "http" not in th["reply"]: raise SystemExit("스레드 답글에 링크가 없어요")
         if len(th["reply"]) > 500: raise SystemExit("스레드 답글이 500자를 넘어요")
