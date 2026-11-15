@@ -63,8 +63,16 @@ def call(method, url, params, token):
 
 
 def wait_ready(api, cid, token, field, tries=30):
+    time.sleep(2)
+    nf = 0
     for _ in range(tries):
-        r = call("GET", f"{api}/{cid}", {"fields": field}, token)
+        try:
+            r = call("GET", f"{api}/{cid}", {"fields": field}, token)
+        except SystemExit as e:
+            # 2026-11-15: 스레드가 막 만든 글 상자를 잠깐 못 찾는 일시 오류(Media Not Found, 4279009) → 기다렸다 다시 확인
+            if "4279009" in str(e) and nf < 10:
+                nf += 1; time.sleep(5); continue
+            raise
         st = r.get(field)
         if st in ("FINISHED", "PUBLISHED"):
             return
