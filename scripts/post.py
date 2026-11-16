@@ -110,6 +110,7 @@ def main():
     ap.add_argument("--base-url", required=True, help="이미지가 공개된 주소 (끝에 / 없이)")
     ap.add_argument("--publish", action="store_true")
     ap.add_argument("--only", choices=["instagram", "threads"])
+    ap.add_argument("--offline", action="store_true", help="공개 주소 확인 없이 글 검사만 (예약 전 사전 점검용)")
     a = ap.parse_args()
 
     folder = os.path.abspath(a.folder)
@@ -163,7 +164,7 @@ def main():
     if th: print(f"  스레드 주제 태그: {th.get('topic') or '없음 (노출이 줄 수 있어요)'}")
     names = ((([ig["video"]] if ig.get("video") else ig["images"])) if ig else []) + th_imgs + ([th["video"]] if th and th.get("video") else [])
     bad = []
-    for n in dict.fromkeys(names):
+    for n in ([] if a.offline else dict.fromkeys(names)):
         ok, info = check_url(q(n))
         print(f"  이미지 {'OK ' if ok else '실패'} {q(n)} ({info})")
         if not ok: bad.append(n)
