@@ -62,11 +62,19 @@ for sp in sorted(glob.glob(os.path.join(ROOT, "jobs", "*", "schedule.json"))):
         cmd = [sys.executable, "-I", os.path.join(ROOT, "scripts", "post.py"), d,
                "--base-url", f"{BASE}/jobs/{job}", "--only", ch] + ([] if DRY else ["--publish"])
         ok = subprocess.run(cmd).returncode == 0
-        if not ok: fail += 1
+        if not ok and DRY: fail += 1
         if not DRY:
             link = posted().get(ch)
             if ok and link: notify(f"{NAMES.get(ch, ch)} 게시 완료 ({job})", f"올라갔어요: {link}", click=link)
-            else: notify(f"❌ {NAMES.get(ch, ch)} 게시 실패 ({job})", "GitHub 실행 기록을 확인해 주세요. 다음 실행 때 다시 시도해요.", tags="x", prio=5)
+            else:
+                # 2026-11-16: 일시 오류는 10분 뒤 다음 실행에서 대부분 저절로 올라감 → 첫 실패는 조용히 재시도, 2번째부터 알림
+                q = posted(); q[f"{ch}_tries"] = q.get(f"{ch}_tries", 0) + 1
+                json.dump(q, open(pp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+                if q[f"{ch}_tries"] >= 2:
+                    fail += 1   # GitHub 실패 표시(메일)도 2번째부터
+                    notify(f"❌ {NAMES.get(ch, ch)} 게시 {q[f'{ch}_tries']}번째 실패 ({job})", "자동 재시도로도 안 올라가요. Claude에게 '게시 실패 알림왔어'라고 알려 주세요.", tags="x", prio=5)
+                else:
+                    print(f"[{job}] {ch} 첫 실패 → 알림 없이 10분 뒤 다시 시도")
     p = posted()
     if not DRY and all(ch in p or f"{ch}_missed" in p for ch in sch["times"]) and not ("threads" in p and "threads_reply" not in p and json.load(open(os.path.join(d, "post.json"), encoding="utf-8")).get("threads", {}).get("reply")):
         for m in sch.get("media", []):
