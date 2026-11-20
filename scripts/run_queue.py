@@ -29,6 +29,34 @@ def notify(title, msg, click=None, tags="white_check_mark", prio=3):
     except Exception as e:
         print("알림 보내기 실패:", type(e).__name__)
 
+def daily_check():
+    """2026-11-20 안전장치: 한국 시간 9~11시 첫 실행 때 그날 예약이 0개면 휴대폰 알림 (하루 1번).
+    보낸(확인한) 날짜는 jobs/_daily_check/posted.json에 적어 중복을 막는다. 미리보기 실행은 결과만 출력."""
+    kst = now.astimezone(datetime.timezone(datetime.timedelta(hours=9)))
+    today = kst.date().isoformat()
+    pp = os.path.join(ROOT, "jobs", "_daily_check", "posted.json")
+    rec = json.load(open(pp, encoding="utf-8")) if os.path.exists(pp) else {}
+    n = 0
+    for sp in glob.glob(os.path.join(ROOT, "jobs", "*", "schedule.json")):
+        for at in json.load(open(sp, encoding="utf-8"))["times"].values():
+            t = datetime.datetime.fromisoformat(at)
+            if t.tzinfo is None: t = t.replace(tzinfo=datetime.timezone(datetime.timedelta(hours=9)))
+            if t.astimezone(kst.tzinfo).date() == kst.date(): n += 1
+    if DRY:
+        print(f"예약 0개 점검(미리보기): 오늘({today}) 예약 {n}개 → {'알림 보낼 상황' if n == 0 else '알림 필요 없음'}"
+              f" · 오늘 점검 기록 {'있음' if today in rec else '없음'}"); return
+    if not (9 <= kst.hour < 12) or today in rec: return
+    if n == 0:
+        notify("⚠️ 오늘 예약이 없어요", "오늘 예약이 없어요. Claude에게 '오늘 예약 없음 알림 왔어'라고 알려 주세요.", tags="warning", prio=4)
+    rec[today] = {"checked": now.isoformat(timespec="seconds"), "count": n, "notified": n == 0}
+    os.makedirs(os.path.dirname(pp), exist_ok=True)
+    json.dump(rec, open(pp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print(f"예약 0개 점검: 오늘 예약 {n}개{' → 휴대폰 알림 보냄' if n == 0 else ''}")
+
+
+try: daily_check()
+except Exception as e: print("예약 0개 점검 오류:", type(e).__name__, e)
+
 if DRY:  # 미리보기 실행 때 열쇠(토큰)가 살아 있는지만 확인 (값은 출력하지 않음)
     import urllib.request
     for name, url in (("INSTAGRAM_ACCESS_TOKEN", "https://graph.facebook.com/v25.0/17841456827059483?fields=username"),
