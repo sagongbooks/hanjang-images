@@ -3,5 +3,10 @@
   "checked": "2026-11-21T00:00:36+00:00",
   "count": 8,
   "notified": false
+ },
+ "2026-11-22": {
+  "checked": "2026-11-22T00:00:37+00:00",
+  "count": 0,
+  "notified": true
  }
 }
