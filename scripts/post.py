@@ -16,6 +16,7 @@
    "threads":   {"images": ["card_1.jpg", ...], "text": "...", "topic": "스킨케어"}}
   답글 링크(2026-11-14): "threads": {..., "text": "고지\n본문(링크 없음)", "reply": "고지\n링크"} → 본문 게시 뒤 답글로 링크
   일상글(스레드 글만, 링크·홍보 없음): {"channel": "jecheol", "threads": {"kind": "daily", "text": "...", "topic": "살림"}}
+  정보글(인스타, 상품·링크 없음): {"instagram": {"kind": "info", "caption": "고지 없이 본문", ...}}
   릴스(영상): {"instagram": {"video": "reel.mp4", "caption": "...", "thumb_offset": 2600},
               "threads":   {"video": "reel.mp4", "text": "...", "topic": "스킨케어"}}
 """
@@ -134,7 +135,13 @@ def main():
     alltext = " ".join(x for x in ((ig or {}).get("caption", ""), (th or {}).get("text", ""), (th or {}).get("reply", "")) if x).lower()
     if aff == "coupang" and "naver" in alltext: raise SystemExit("네이버 링크가 있는데 affiliate가 쿠팡이에요. post.json에 \"affiliate\": \"naver\"")
     if aff == "naver" and "coupang" in alltext: raise SystemExit("쿠팡 링크가 있는데 affiliate가 네이버예요")
-    if ig: check_first_line("인스타그램", ig["caption"], words)
+    # 정보글(kind=info, 2026-11-26 사용자 결정): 상품·링크 없는 인스타 정보 카드·릴스는 수수료 고지 생략
+    if ig and ig.get("kind") == "info":
+        low = ig["caption"].lower()
+        bad = [k for k in ("http", "link.", "coupang", "쿠팡", "naver.me", "스마트스토어", "구매", "링크", "할인", "최저가", "수수료", "원 (", "리뷰 요약") if k in low]
+        if bad: raise SystemExit(f"정보글에 상품·링크 말이 있어요({', '.join(bad)}). 상품 글이면 kind를 빼고 수수료 고지를 넣어요")
+        print("  인스타 정보글: 상품·링크 없음 확인 (수수료 고지 생략)")
+    elif ig: check_first_line("인스타그램", ig["caption"], words)
     # 일상글(kind=daily, 2026-11-11 사용자 결정): 링크·상품 홍보가 없는 스레드 글만 허용, 그때만 수수료 고지 생략
     if th and th.get("kind") == "daily":
         if ig or th_media_any(th): raise SystemExit("일상글은 스레드 글(텍스트)만 올려요")
